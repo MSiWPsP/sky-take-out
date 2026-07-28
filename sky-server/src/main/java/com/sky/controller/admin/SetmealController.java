@@ -76,11 +76,30 @@ public class SetmealController {
         return Result.success(setmealVO);
     }
 
+    /**
+     * 修改套餐信息
+     * @param setmealDTO
+     * @return
+     */
     @PutMapping
     @ApiOperation("修改套餐信息")
     public Result update(@RequestBody SetmealDTO setmealDTO){
         log.info("修改套餐信息:{}",setmealDTO);
         setmealService.update(setmealDTO);
+        return Result.success();
+    }
+
+    /**
+     * 套餐启售停售
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("套餐启售停售")
+    public Result StartOrStop(@PathVariable Integer status,Long id){
+        log.info("套餐启售停售:{},{}",status,id);
+        setmealService.StartOrStop(status,id);
         return Result.success();
     }
 

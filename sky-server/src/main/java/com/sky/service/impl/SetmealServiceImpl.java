@@ -81,7 +81,7 @@ public class SetmealServiceImpl implements SetmealService {
         //判断当前套餐启售状态
         for (Long id : ids) {
             Setmeal setmeal = setmealMapper.getById(id);
-            if (setmeal.getStatus().equals(StatusConstant.ENABLE)){
+            if (StatusConstant.ENABLE.equals(setmeal.getStatus())){
                 throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
             }
         }
@@ -90,8 +90,29 @@ public class SetmealServiceImpl implements SetmealService {
         setmealMapper.deleteByIds(ids);
 
         //批量删除套餐关联菜品信息
-        setmealDishMapper.deleteByIds(ids);
+        setmealDishMapper.deleteBySetmealIds(ids);
 
+    }
+
+    /**
+     * 根据套餐id查询套餐基本信息和关联菜品信息
+     * @param id
+     * @return
+     */
+    @Override
+    public SetmealVO getByIdWithDish(Long id) {
+        //查询套餐基本信息
+        Setmeal setmeal = setmealMapper.getById(id);
+
+        //查询套餐关联菜品信息
+        List<SetmealDish> setmealDishes = setmealDishMapper.getBySetmealId(id);
+
+        //封装到setmealVO
+        SetmealVO setmealVO = new SetmealVO();
+        BeanUtils.copyProperties(setmeal,setmealVO);
+        setmealVO.setSetmealDishes(setmealDishes);
+
+        return setmealVO;
     }
 
 }

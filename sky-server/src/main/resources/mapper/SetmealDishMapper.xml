@@ -8,7 +8,7 @@
             (#{setmealDish.setmealId},#{setmealDish.dishId},#{setmealDish.name},#{setmealDish.price},#{setmealDish.copies})
         </foreach>
     </insert>
-    <delete id="deleteByIds">
+    <delete id="deleteBySetmealIds">
         delete from setmeal_dish where setmeal_id in
         <foreach collection="setmealIds" open="(" close=")" item="setmealId" separator=",">
             #{setmealId}

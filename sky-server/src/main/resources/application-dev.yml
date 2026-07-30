@@ -11,4 +11,7 @@ sky:
     access-key-secret: NCHXWVWsJkyArbmpqoTJKSpgQtk8BT
     access-key-id: LTAI5t8P4rJdVfEd8Di7e7LD
     bucket-name: xucheng-sky-takeout
-
+  redis:
+    host: localhost
+    port: 6379
+    database: 0

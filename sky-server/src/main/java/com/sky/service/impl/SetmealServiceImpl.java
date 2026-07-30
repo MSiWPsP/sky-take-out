@@ -147,7 +147,7 @@ public class SetmealServiceImpl implements SetmealService {
     }
 
     /**
-     * 套餐起售停售
+     * 7套餐起售停售
      * @param status
      * @param id
      */

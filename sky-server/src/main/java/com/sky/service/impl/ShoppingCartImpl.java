@@ -90,4 +90,15 @@ public class ShoppingCartImpl implements ShoppingCartService {
         //调用list方法查询购物车数据
         return shoppingCartMapper.list(shoppingCart);
     }
+
+    /**
+     * 清空购物车
+     */
+    @Override
+    public void cleanShoppingCart() {
+        //从threadLocal获取当前用户userId
+        Long userId = BaseContext.getCurrentId();
+
+        shoppingCartMapper.deleteByUserId(userId);
+    }
 }

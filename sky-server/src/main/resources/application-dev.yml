@@ -25,4 +25,7 @@ sky:
     we-chat-pay-cert-file-path:
     notify-url:
     refund-notify-url:
-
+  shop:
+    address: 江苏省无锡市梁溪区三阳广场
+  baidu:
+    ak: rc5jxXir6tUG8t2qtSvxeEdDvIMOuMNJ

@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -277,6 +276,32 @@ public class OrderServiceImpl implements OrderService {
         orders.setCancelTime(LocalDateTime.now());
         orderMapper.update(orders);
 
+    }
+
+    @Override
+    @Transactional
+    public void repetition(Long id) {
+        Long userId = BaseContext.getCurrentId();
+        Orders orders = orderMapper.getById(id);
+
+        if (orders == null || !orders.getUserId().equals(userId)) {
+            throw new OrderBusinessException("订单不存在");
+        }
+        //核心逻辑就是把当前订单的订单明细再添加到当前用户购物车中
+        //先获取到当前订单的订单明细list
+        List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(id);
+        //遍历orderDetails拷贝属性到shoppingCart,再逐条插入
+        for (OrderDetail orderDetail : orderDetails) {
+            ShoppingCart shoppingCart = new ShoppingCart();
+
+            BeanUtils.copyProperties(orderDetail,shoppingCart);
+
+            shoppingCart.setId(null);
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            shoppingCartMapper.insert(shoppingCart);
+        }
     }
 
 }

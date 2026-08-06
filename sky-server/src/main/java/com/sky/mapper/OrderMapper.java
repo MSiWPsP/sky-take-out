@@ -58,4 +58,12 @@ public interface OrderMapper {
             @Param("checkoutTime") LocalDateTime checkoutTime,
             @Param("id") Long id
     );
+
+    /**
+     * 根据订单id查询订单
+     * @param id
+     * @return
+     */
+    @Select(("select * from orders where id = #{id}"))
+    Orders getById(Long id);
 }

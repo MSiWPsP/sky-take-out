@@ -4,7 +4,11 @@ import com.github.pagehelper.Page;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.time.LocalDateTime;
 
 @Mapper
 public interface OrderMapper {
@@ -34,4 +38,24 @@ public interface OrderMapper {
      * @return
      */
     Page<Orders> pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    /**
+     * 修改订单状态、支付状态和支付时间
+     *
+     * @param orderStatus     订单状态
+     * @param orderPaidStatus 支付状态
+     * @param checkoutTime    支付时间
+     * @param id              订单 ID
+     */
+    @Update("update orders " +
+            "set status = #{orderStatus}, " +
+            "pay_status = #{orderPaidStatus}, " +
+            "checkout_time = #{checkoutTime} " +
+            "where id = #{id}")
+    void updateStatus(
+            @Param("orderStatus") Integer orderStatus,
+            @Param("orderPaidStatus") Integer orderPaidStatus,
+            @Param("checkoutTime") LocalDateTime checkoutTime,
+            @Param("id") Long id
+    );
 }

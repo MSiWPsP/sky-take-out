@@ -108,30 +108,64 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 订单支付
      *
-     * @param ordersPaymentDTO
-     * @return
+     * @param ordersPaymentDTO 订单支付参数
+     * @return 支付结果
      */
+    @Override
     public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
-        // 当前登录用户id
+
+        // 当前登录用户 ID
         Long userId = BaseContext.getCurrentId();
+
         User user = userMapper.getById(userId);
 
-        //调用微信支付接口，生成预支付交易单
-        JSONObject jsonObject = weChatPayUtil.pay(
-                ordersPaymentDTO.getOrderNumber(), //商户订单号
-                new BigDecimal(0.01), //支付金额，单位 元
-                "苍穹外卖订单", //商品描述
-                user.getOpenid() //微信用户的openid
-        );
+        // 调用微信支付接口，生成预支付交易单
+//    JSONObject jsonObject = weChatPayUtil.pay(
+//            ordersPaymentDTO.getOrderNumber(), // 商户订单号
+//            new BigDecimal(0.01),               // 支付金额，单位：元
+//            "苍穹外卖订单",                      // 商品描述
+//            user.getOpenid()                    // 用户的 openid
+//    );
+//
+//    if ("ORDERPAID".equals(jsonObject.getString("code"))) {
+//        throw new OrderBusinessException("该订单已支付");
+//    }
 
-        if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
-            throw new OrderBusinessException("该订单已支付");
+        // 模拟微信支付返回结果
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("code", "ORDERPAID");
+
+        OrderPaymentVO orderPaymentVO =
+                jsonObject.toJavaObject(OrderPaymentVO.class);
+
+        orderPaymentVO.setPackageStr(jsonObject.getString("package"));
+
+        // 支付状态：已支付
+        Integer orderPaidStatus = Orders.PAID;
+
+        // 订单状态：待接单
+        Integer orderStatus = Orders.TO_BE_CONFIRMED;
+
+        // 支付时间
+        LocalDateTime checkoutTime = LocalDateTime.now();
+
+        // 根据订单号查询订单
+        Orders orders =
+                orderMapper.getByNumber(ordersPaymentDTO.getOrderNumber());
+
+        if (orders == null) {
+            throw new OrderBusinessException("订单不存在");
         }
 
-        OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
-        vo.setPackageStr(jsonObject.getString("package"));
+        // 修改订单状态、支付状态和支付时间
+        orderMapper.updateStatus(
+                orderStatus,
+                orderPaidStatus,
+                checkoutTime,
+                orders.getId()
+        );
 
-        return vo;
+        return orderPaymentVO;
     }
 
     /**

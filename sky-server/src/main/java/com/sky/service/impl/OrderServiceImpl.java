@@ -23,6 +23,7 @@ import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 
+import com.sky.webSocket.WebSocketServer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,21 +44,32 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderMapper orderMapper;
+
     @Autowired
     private OrderDetailMapper orderDetailMapper;
+
     @Autowired
     private AddressBookMapper addressBookMapper;
+
     @Autowired
     private ShoppingCartMapper shoppingCartMapper;
+
     @Autowired
     private WeChatPayUtil weChatPayUtil;
+
     @Autowired
     private UserMapper userMapper;
+
     @Value("${sky.shop.address}")
     private String shopAddress;
 
     @Value("${sky.baidu.ak}")
     private String ak;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
+
+
     /**
      * 用户下单
      * @param ordersSubmitDTO
@@ -186,6 +198,15 @@ public class OrderServiceImpl implements OrderService {
                 checkoutTime,
                 orders.getId()
         );
+
+        //通过websocket向客户端推送数据 type orderId content
+        HashMap map = new HashMap<>();
+        map.put("type",1);//1表示来单提醒 2表示客户催单
+        map.put("orderId",orders.getId());
+        map.put("content","订单号:" + orders.getNumber());
+
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
 
         return orderPaymentVO;
     }
@@ -375,6 +396,10 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
+    /**
+     * 拒单
+     * @param ordersRejectionDTO
+     */
     @Override
     public void rejection(OrdersRejectionDTO ordersRejectionDTO) {
         // 根据id查询订单
